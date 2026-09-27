@@ -198,6 +198,7 @@ let ME = JSON.parse(sessionStorage.getItem('mite_me')||'null');
 async function api(path, opts={}){
   opts.headers = Object.assign({'Content-Type':'application/json', 'X-Pinggy-No-Screen':'1'}, opts.headers||{});
   if (TOKEN) opts.headers['Authorization'] = 'Bearer ' + TOKEN;
+  opts.credentials = 'include';
   const r = await fetch(BASE + path, opts);
   if (r.status === 401) { showLogin('Session expired — sign in again'); throw new Error('401'); }
   return r;
@@ -215,7 +216,8 @@ async function doLogin(){
   $('loginBtn').disabled = true; $('loginBtn').textContent = 'Signing in…';
   try{
     const r = await fetch(BASE + '/api/v1/auths/signin', {
-      method:'POST', headers:{'Content-Type':'application/json', 'X-Pinggy-No-Screen':'1'},
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json', 'X-Pinggy-No-Screen':'1'},
       body: JSON.stringify({email, password: pass})
     });
     const d = await r.json();
@@ -370,7 +372,7 @@ async function send(){
 
   try{
     const r = await fetch(BASE + '/api/chat/completions', {
-      method:'POST',
+      method:'POST', credentials:'include',
       headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + TOKEN, 'X-Pinggy-No-Screen':'1'},
       body: JSON.stringify({model: currentModel, messages: history.map(m=>({role:m.role, content:m.content})), stream: wantStream})
     });
@@ -475,7 +477,7 @@ const _origSend = send;
 async function pingBackend(){
   const t0 = performance.now();
   try{
-    await fetch(BASE + '/api/config', {cache:'no-store', headers:{'X-Pinggy-No-Screen':'1'}});
+    await fetch(BASE + '/api/config', {cache:'no-store', credentials:'include', headers:{'X-Pinggy-No-Screen':'1'}});
     const ms = Math.round(performance.now() - t0);
     $('backendDot').className = 'w-1.5 h-1.5 rounded-full bg-telemetry-emerald';
     $('backendMs').textContent = ms + 'ms';
@@ -493,7 +495,7 @@ async function pingBackend(){
   if (location.hostname.endsWith('.github.io')){
     $('loginStatus').textContent = 'finding live AI link…';
     try{
-      const r = await fetch('https://ntfy.sh/buffy-devalerts-x7k2/json?poll=1&since=24h', {cache:'no-store'});
+      const r = await fetch('https://ntfy.sh/buffy-devalerts-x7k2/json?poll=1&since=24h', {cache:'no-store', credentials:'omit'});
       const best = {A:0,B:0}; let link = null;
       for (const line of (await r.text()).split('\n')){
         if (!line.trim()) continue;
