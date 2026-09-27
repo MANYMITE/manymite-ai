@@ -12,12 +12,11 @@ window.MITE_ON_GITHUB = false;
   const forced = new URLSearchParams(location.search).get('api');
   if (forced) { window.MITE_BASE = forced.replace(/\/+$/,''); return; }
   const h = location.hostname;
+  const servedByBackend =
+    (location.protocol === 'http:' || location.protocol === 'https:') &&
+    (location.port === '3000' || h.endsWith('.pinggy-free.link'));
   if (h.endsWith('.github.io')) { window.MITE_ON_GITHUB = true; return; }
-  if (location.protocol === 'file:' ||
-      (!h && location.protocol === 'about:') ||
-      (!['3000','8080'].includes(location.port) && !h.endsWith('.pinggy-free.link') && h !== 'localhost' && h !== '127.0.0.1' && h !== '')) {
-    window.MITE_BASE = 'http://localhost:3000';
-  }
+  if (!servedByBackend) { window.MITE_BASE = 'http://localhost:3000'; }
   // else: same-origin (page served by Open WebUI itself) — keep ''
 })();
 </script>
