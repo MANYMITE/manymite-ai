@@ -1,57 +1,532 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MANYMITE AI — opening console…</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-<style>
-  body{font-family:Geist,'Segoe UI',system-ui,sans-serif;background:#090A0F;color:#e2e1ed;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
-  .card{text-align:center;max-width:420px;padding:2rem}
-  .bolt{width:56px;height:56px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(135deg,#00d2ff,#3B82F6);box-shadow:0 0 30px rgba(0,210,255,.4);margin-bottom:1rem}
-  h1{font-size:1.3rem;margin:.5rem 0}
-  p{color:#859399;font-size:.9rem;line-height:1.6}
-  .bar{height:3px;width:220px;background:#1F293D;border-radius:2px;margin:1.2rem auto;overflow:hidden}
-  .bar i{display:block;height:100%;width:40%;background:#00d2ff;border-radius:2px;animation:slide 1.2s ease-in-out infinite}
-  @keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(280%)}}
-  .err{color:#F43F5E;display:none;margin-top:1rem}
-  a{color:#00d2ff}
-</style>
-</head>
-<body>
-<div class="card">
-  <div class="bolt">⚡</div>
-  <h1>MANYMITE AI Console</h1>
-  <div class="bar"><i></i></div>
-  <p id="msg">Finding the live AI link…</p>
-  <p class="err" id="err">Couldn't reach the AI right now — the home PC may be off, or the link is rotating.<br><br><a href="#" onclick="location.reload();return false">Retry now</a></p>
-</div>
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>MANYMITE AI — Console</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
 <script>
-const msg = document.getElementById('msg'), err = document.getElementById('err');
-async function go(){
-  msg.textContent = 'Finding the live AI link…'; err.style.display = 'none';
+// Base URL resolution: served from the backend (tunnel or LAN) = same-origin (empty
+// base, no CORS, pinggy cookie flows). Hosted on github.io = resolve live tunnel.
+// Anywhere else (file://, random host): fall back to localhost:3000.
+window.MITE_BASE = '';
+window.MITE_ON_GITHUB = false;
+(function(){
+  const forced = new URLSearchParams(location.search).get('api');
+  if (forced) { window.MITE_BASE = forced.replace(/\/+$/,''); return; }
+  const h = location.hostname;
+  if (h.endsWith('.github.io')) { window.MITE_ON_GITHUB = true; return; }
+  if (location.protocol === 'file:' ||
+      (!h && location.protocol === 'about:') ||
+      (!['3000','8080'].includes(location.port) && !h.endsWith('.pinggy-free.link') && h !== 'localhost' && h !== '127.0.0.1' && h !== '')) {
+    window.MITE_BASE = 'http://localhost:3000';
+  }
+  // else: same-origin (page served by Open WebUI itself) — keep ''
+})();
+</script>
+<script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-tertiary-fixed": "#23005c", "on-primary-container": "#00566a", "on-secondary-fixed": "#001a42", "surface-container-high": "#282a32", "on-background": "#e2e1ed", "surface-base": "#0D0F17", "secondary-fixed": "#d8e2ff", "primary-container": "#00d2ff", "tertiary-fixed": "#e9ddff", "on-tertiary-container": "#5d25c7", "inverse-surface": "#e2e1ed", "surface-overlay": "#181D2B", "on-secondary": "#002e6a", "on-tertiary": "#3c0091", "surface-raised": "#131722", "secondary-container": "#0566d9", "on-error": "#690005", "surface-deep": "#090A0F", "on-surface": "#e2e1ed", "surface": "#11131b", "primary": "#a5e7ff", "primary-fixed": "#b6ebff", "background": "#11131b", "border-active": "#00D2FF4D", "inverse-primary": "#00677f", "error-container": "#93000a", "on-primary": "#003543", "on-error-container": "#ffdad6", "tertiary-fixed-dim": "#d0bcff", "on-primary-fixed": "#001f28", "secondary-fixed-dim": "#adc6ff", "on-primary-fixed-variant": "#004e60", "surface-bright": "#373942", "on-surface-variant": "#bbc9cf", "on-secondary-container": "#e6ecff", "telemetry-rose": "#F43F5E", "telemetry-emerald": "#10B981", "surface-dim": "#11131b", "surface-variant": "#33343d", "on-tertiary-fixed-variant": "#5516be", "surface-container-low": "#191b24", "telemetry-amber": "#F59E0B", "compute-gold": "#D4AF37", "tertiary-container": "#cbb6ff", "surface-container-highest": "#33343d", "outline-variant": "#3c494e", "surface-container-lowest": "#0c0e16", "border-subtle": "#1F293D", "outline": "#859399", "surface-container": "#1d1f28", "on-secondary-fixed-variant": "#004395", "tertiary": "#e4d7ff", "error": "#ffb4ab", "inverse-on-surface": "#2e3039", "secondary": "#adc6ff" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "margin-lg": "2rem", "space-xs": "0.25rem", "space-lg": "1.25rem", "space-xl": "2rem", "space-md": "0.75rem", "gutter": "1rem", "space-sm": "0.5rem", "margin-md": "1.5rem", "gutter-lg": "1.5rem", "margin": "1rem" }, "fontFamily": { "headline-lg": ["Geist"], "display-lg": ["Geist"], "headline-md": ["Geist"], "body-md": ["Geist"], "code-base": ["JetBrains Mono"], "headline-xl": ["Geist"], "body-lg": ["Geist"], "label-mono-xs": ["JetBrains Mono"], "telemetry-num": ["JetBrains Mono"], "title-sm": ["Geist"], "label-mono-sm": ["JetBrains Mono"], "body-sm": ["Geist"] }, "fontSize": { "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "500" }], "display-lg": ["52px", { "lineHeight": "60px", "letterSpacing": "-0.03em", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.015em", "fontWeight": "500" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "code-base": ["13px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.025em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "label-mono-xs": ["10px", { "lineHeight": "12px", "letterSpacing": "0.08em", "fontWeight": "500" }], "telemetry-num": ["14px", { "lineHeight": "16px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "title-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "label-mono-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "500" }], "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }] } } } };</script>
+<style>
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-thumb{background:#1F293D;border-radius:3px}
+  .md-body p{margin:.35rem 0}
+  .md-body img{max-width:100%;border-radius:.5rem;margin:.5rem 0;border:1px solid #1F293D}
+  .md-body pre{background:#090A0F;border:1px solid #1F293D;border-radius:.5rem;padding:.75rem;overflow-x:auto;margin:.5rem 0}
+  .md-body code{font-family:'JetBrains Mono',monospace;font-size:13px;color:#a5e7ff}
+  .md-body p>code, .md-body li>code{background:#181D2B;padding:1px 5px;border-radius:4px}
+  .md-body ul{list-style:disc;padding-left:1.25rem;margin:.35rem 0}
+  .md-body ol{list-style:decimal;padding-left:1.25rem;margin:.35rem 0}
+  .md-body strong{color:#fff}
+  .md-body h1,.md-body h2,.md-body h3{color:#fff;font-weight:600;margin:.6rem 0 .3rem}
+  .md-body a{color:#00d2ff;text-decoration:underline}
+  .md-body table{border-collapse:collapse;margin:.5rem 0}
+  .md-body th,.md-body td{border:1px solid #1F293D;padding:4px 8px;font-size:13px}
+  .thinking stream{display:block}
+  .fade-in{animation:fi .25s ease}
+  @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .cursor-blink::after{content:'▊';color:#00d2ff;animation:blink 1s steps(1) infinite;margin-left:2px}
+  @keyframes blink{50%{opacity:0}}
+  details.think summary::-webkit-details-marker{display:none}
+</style>
+</head><body class="bg-surface-deep text-on-surface font-body-md text-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- ================= LOGIN GATE ================= -->
+<div id="loginGate" class="fixed inset-0 z-[100] bg-surface-deep flex items-center justify-center hidden">
+  <div class="w-full max-w-sm bg-surface-base border border-border-subtle rounded-xl p-space-xl shadow-[0_0_40px_rgba(0,210,255,0.06)] fade-in">
+    <div class="flex items-center gap-2 mb-6">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-container to-[#3B82F6] flex items-center justify-center shadow-[0_0_14px_rgba(0,210,255,0.4)]">
+        <span class="material-symbols-outlined text-on-primary-container text-[20px]">bolt</span>
+      </div>
+      <div>
+        <div class="font-title-sm text-title-sm font-semibold tracking-wide uppercase">MANYMITE AI</div>
+        <div class="font-label-mono-xs text-label-mono-xs text-outline uppercase">Console sign-in</div>
+      </div>
+    </div>
+    <label class="block font-label-mono-xs text-label-mono-xs uppercase text-outline mb-1">Email</label>
+    <input id="loginEmail" type="email" autocomplete="username" class="w-full mb-3 bg-surface-container-lowest border border-border-subtle rounded-lg px-space-md py-2 text-on-surface outline-none focus:shadow-[0_0_0_1px_#00d2ff]" placeholder="you@local.dev">
+    <label class="block font-label-mono-xs text-label-mono-xs uppercase text-outline mb-1">Password</label>
+    <input id="loginPass" type="password" autocomplete="current-password" class="w-full mb-4 bg-surface-container-lowest border border-border-subtle rounded-lg px-space-md py-2 text-on-surface outline-none focus:shadow-[0_0_0_1px_#00d2ff]" placeholder="••••••••">
+    <button id="loginBtn" class="w-full h-10 rounded-lg bg-primary-container text-on-primary-container font-medium hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_0_14px_rgba(0,210,255,0.4)]">Sign in</button>
+    <div id="loginErr" class="hidden mt-3 text-[13px] text-telemetry-rose bg-error-container/20 border border-telemetry-rose/30 rounded p-2"></div>
+    <div id="loginStatus" class="mt-4 font-label-mono-xs text-label-mono-xs text-outline"></div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<aside class="fixed left-0 top-0 h-full w-72 bg-surface-base z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)] max-lg:hidden" id="sidebar">
+  <div class="flex flex-col flex-1 min-h-0">
+    <div class="p-space-md pb-space-sm">
+      <button id="newChatBtn" class="w-full flex items-center justify-between px-space-md py-space-sm rounded-lg bg-surface-raised text-primary hover:bg-surface-container hover:text-on-surface transition-all duration-150 shadow-[0_0_14px_rgba(0,210,255,0.15)] group" type="button">
+        <div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-title-sm text-primary transition-transform group-hover:rotate-90">add</span><span class="font-title-sm text-title-sm font-medium">New Chat</span></div>
+        <span class="font-label-mono-xs text-label-mono-xs uppercase px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">Ctrl K</span>
+      </button>
+    </div>
+    <div class="px-space-md py-space-xs">
+      <div class="font-label-mono-xs text-label-mono-xs uppercase text-outline tracking-wider mb-space-xs px-space-xs">Quick Engine Hub</div>
+      <div id="engineHub" class="grid grid-cols-4 gap-space-xs p-space-xs rounded-lg bg-surface-container-lowest"></div>
+    </div>
+    <div class="flex-1 overflow-y-auto px-space-md py-space-xs space-y-space-md">
+      <nav id="chatList" class="space-y-space-xs"></nav>
+    </div>
+  </div>
+  <div class="p-space-md bg-surface-container-lowest flex flex-col gap-space-xs">
+    <a id="adminLink" href="#" target="_blank" rel="noopener" class="hidden flex items-center gap-space-sm px-space-sm py-1.5 rounded text-compute-gold hover:bg-surface-container transition-colors font-label-mono-sm text-label-mono-sm uppercase tracking-wider">
+      <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>Admin Panel</a>
+    <div class="flex items-center justify-between px-space-sm text-on-surface-variant font-label-mono-xs text-label-mono-xs">
+      <div class="flex items-center gap-1.5"><span id="backendDot" class="w-1.5 h-1.5 rounded-full bg-telemetry-amber"></span><span>Backend</span></div>
+      <span id="backendMs" class="font-telemetry-num text-telemetry-num">—</span>
+    </div>
+    <div class="flex items-center justify-between px-space-sm pt-space-xs text-on-surface-variant font-label-mono-xs text-label-mono-xs">
+      <div class="flex items-center gap-1.5"><span id="userDot" class="w-1.5 h-1.5 rounded-full bg-telemetry-emerald"></span><span id="userName" class="truncate">—</span></div>
+      <button id="logoutBtn" class="hover:text-telemetry-rose transition-colors" title="Sign out"><span class="material-symbols-outlined text-[14px]">logout</span></button>
+    </div>
+  </div>
+</aside>
+
+<div class="pl-72 max-lg:pl-0">
+  <header class="fixed top-0 left-72 right-0 max-lg:left-0 h-16 bg-surface-base/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg">
+    <div class="flex items-center gap-space-md min-w-0">
+      <button id="menuBtn" class="lg:hidden text-on-surface-variant hover:text-on-surface" type="button"><span class="material-symbols-outlined">menu</span></button>
+      <div class="flex items-center gap-space-sm min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-container to-[#3B82F6] flex items-center justify-center shadow-[0_0_12px_rgba(0,210,255,0.35)] shrink-0">
+          <span class="material-symbols-outlined text-on-primary-container text-[18px]">bolt</span>
+        </div>
+        <span class="font-title-sm text-title-sm tracking-tight font-medium text-on-surface uppercase truncate hidden sm:block">MANYMITE AI</span>
+        <span id="verBadge" class="font-label-mono-xs text-label-mono-xs uppercase px-1.5 py-0.5 rounded bg-surface-container-high text-primary hidden sm:block">…</span>
+      </div>
+      <div class="hidden xl:flex items-center gap-2 px-space-sm py-1 rounded-full bg-surface-container-low">
+        <span id="liveDot" class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-telemetry-emerald opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-telemetry-emerald"></span></span>
+        <span id="connLabel" class="font-label-mono-xs text-label-mono-xs text-on-surface">connecting…</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-space-md">
+      <div class="relative">
+        <button id="modelPillTop" class="flex items-center gap-2 px-space-sm py-1 rounded-full bg-surface-raised cursor-pointer hover:bg-surface-container transition-colors">
+          <span class="w-2 h-2 rounded-full bg-primary-container shadow-[0_0_8px_#00d2ff]"></span>
+          <span id="modelNameTop" class="font-label-mono-sm text-label-mono-sm text-on-surface">…</span>
+          <span class="material-symbols-outlined text-[14px] text-on-surface-variant">expand_more</span>
+        </button>
+        <div id="modelMenuTop" class="hidden absolute right-0 mt-2 w-64 bg-surface-overlay border border-border-subtle rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.6)] p-1 z-50"></div>
+      </div>
+      <div class="hidden sm:flex items-center gap-1 font-label-mono-xs text-label-mono-xs text-on-surface-variant"><span class="material-symbols-outlined text-[15px]">link</span><span>API Ready</span></div>
+      <div class="relative">
+        <div id="avatar" class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary cursor-pointer select-none font-medium">?</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="w-full pt-16 bg-surface-deep min-h-screen">
+    <div id="feed" class="w-full max-w-5xl mx-auto px-gutter-lg py-space-xl flex flex-col gap-space-xl pb-44"></div>
+    <div id="welcome" class="w-full max-w-5xl mx-auto px-gutter-lg py-24 text-center">
+      <div class="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-container to-[#3B82F6] items-center justify-center shadow-[0_0_30px_rgba(0,210,255,0.35)] mb-5">
+        <span class="material-symbols-outlined text-on-primary-container text-[28px]">bolt</span>
+      </div>
+      <h1 class="font-headline-md text-headline-md text-on-surface mb-2">MANYMITE AI Console</h1>
+      <p class="text-on-surface-variant max-w-md mx-auto">Private AI on home hardware. Pick an engine on the left — or pick 🎨 image_generator and describe any picture you want.</p>
+      <div id="suggestWrap" class="flex flex-wrap justify-center gap-2 mt-6"></div>
+    </div>
+  </main>
+
+  <div class="fixed bottom-0 left-72 right-0 max-lg:left-0 p-space-lg pointer-events-none z-30">
+    <div class="max-w-4xl mx-auto w-full pointer-events-auto">
+      <div class="bg-surface-base/95 backdrop-blur-2xl rounded-2xl p-space-md shadow-[0_4px_30px_rgba(0,0,0,0.6)] flex flex-col gap-space-sm">
+        <div class="flex items-center justify-between px-space-xs">
+          <div class="flex items-center gap-2">
+            <button id="modelPill" class="flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-raised hover:bg-surface-container text-on-surface font-label-mono-xs text-label-mono-xs transition-colors shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_#00d2ff]"></span>
+              <span id="modelName" class="font-medium">…</span>
+              <span class="material-symbols-outlined text-[14px] text-on-surface-variant">unfold_more</span>
+            </button>
+            <div class="hidden sm:flex items-center gap-1.5 px-space-sm py-1 rounded bg-surface-container-low text-on-surface-variant font-label-mono-xs text-label-mono-xs">
+              <span class="text-outline">temp:</span><span class="text-primary font-telemetry-num text-telemetry-num" id="tempLabel">0.70</span>
+            </div>
+            <input id="tempSlider" type="range" min="0" max="15" value="7" class="hidden sm:block w-24 accent-[#00d2ff]">
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="flex items-center gap-2 cursor-pointer select-none">
+              <span class="font-label-mono-xs text-label-mono-xs text-on-surface-variant uppercase">Stream</span>
+              <input checked class="sr-only peer" id="streamToggle" type="checkbox">
+              <div class="w-8 h-4 bg-surface-container-highest rounded-full peer peer-checked:bg-primary-container peer-checked:after:translate-x-4 peer-checked:after:bg-on-primary-container after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-surface after:rounded-full after:h-3 after:w-3 after:transition-all relative"></div>
+            </label>
+          </div>
+        </div>
+        <div class="relative flex items-end gap-space-sm bg-surface-container-lowest rounded-xl p-space-sm focus-within:shadow-[0_0_0_1px_#00d2ff]">
+          <textarea id="promptInput" class="w-full bg-transparent resize-none border-none outline-none font-body-md text-body-md text-on-surface placeholder:text-outline max-h-32 py-1.5 leading-relaxed" placeholder="Type your message or ask a question..." rows="1"></textarea>
+          <button id="sendBtn" class="h-10 w-10 rounded-xl bg-primary-container hover:brightness-110 active:scale-95 text-on-primary-container flex items-center justify-center shrink-0 shadow-[0_0_14px_rgba(0,210,255,0.4)] transition-all">
+            <span class="material-symbols-outlined text-[22px]">bolt</span>
+          </button>
+        </div>
+        <div class="flex items-center justify-between px-space-xs font-label-mono-xs text-[10px] text-outline">
+          <div class="flex items-center gap-space-md"><span class="text-on-surface-variant font-medium">MANYMITE AI</span><span class="text-outline">•</span><span>Shift + Enter for newline</span></div>
+          <div class="flex items-center gap-space-md text-on-surface-variant"><span id="imgHint" class="text-primary">🎨 image_generator: type any picture</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ tiny helpers ============ */
+const $ = id => document.getElementById(id);
+let BASE = window.MITE_BASE;
+const esc = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function mdToHtml(md){
+  let t = esc(md);
+  t = t.replace(/```(\w*)\n([\s\S]*?)```/g, (m,l,c)=>'<pre><code>'+c.replace(/\n$/,'')+'</code></pre>');
+  t = t.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+  t = t.replace(/!\[([^\]]*)\]\((https?:[^)\s]+)\)/g,'<img alt="$1" src="$2">');
+  t = t.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  t = t.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  t = t.replace(/^### (.*)$/gm,'<h3>$1</h3>').replace(/^## (.*)$/gm,'<h2>$1</h2>').replace(/^# (.*)$/gm,'<h1>$1</h1>');
+  t = t.replace(/^\s*[-*] (.*)$/gm,'<li>$1</li>').replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g,'<ul>$1</ul>');
+  t = t.split(/\n{2,}/).map(p => /^<(h\d|ul|ol|pre|img|table)/.test(p.trim()) ? p : '<p>'+p.replace(/\n/g,'<br>')+'</p>').join('');
+  return t;
+}
+
+/* ============ auth ============ */
+let TOKEN = sessionStorage.getItem('mite_token') || '';
+let ME = JSON.parse(sessionStorage.getItem('mite_me')||'null');
+
+async function api(path, opts={}){
+  opts.headers = Object.assign({'Content-Type':'application/json', 'X-Pinggy-No-Screen':'1'}, opts.headers||{});
+  if (TOKEN) opts.headers['Authorization'] = 'Bearer ' + TOKEN;
+  opts.credentials = 'include';
+  const r = await fetch(BASE + path, opts);
+  if (r.status === 401) { showLogin('Session expired — sign in again'); throw new Error('401'); }
+  return r;
+}
+
+function showLogin(msg){
+  $('loginGate').classList.remove('hidden');
+  if (msg){ $('loginErr').textContent = msg; $('loginErr').classList.remove('hidden'); }
+}
+function hideLogin(){ $('loginGate').classList.add('hidden'); $('loginErr').classList.add('hidden'); }
+
+async function doLogin(){
+  const email = $('loginEmail').value.trim(), pass = $('loginPass').value;
+  if (!email || !pass) return;
+  $('loginBtn').disabled = true; $('loginBtn').textContent = 'Signing in…';
   try{
-    const r = await fetch('https://ntfy.sh/buffy-devalerts-x7k2/json?poll=1&since=24h', {cache:'no-store', credentials:'omit'});
-    const best = {A:0,B:0}; let link = null;
-    for (const line of (await r.text()).split('\n')){
-      if (!line.trim()) continue;
-      let m; try{ m = JSON.parse(line); }catch(e){ continue; }
-      if (m.event !== 'message') continue;
-      const u = (m.message||'').match(/https:\/\/[a-z0-9.-]+\.run\.pinggy-free\.link/i);
-      if (!u) continue;
-      const t = m.title||'';
-      if (/link A/i.test(t) && m.time > best.A){ best.A = m.time; link = u[0]; }
-      if (/link B/i.test(t) && m.time > best.B){ best.B = m.time; link = u[0]; }
-    }
-    if (!link) throw new Error('no live link');
-    msg.textContent = 'Live link found — opening the console…';
-    location.replace(link.replace(/\/+$/,'') + '/chat.html');
+    const r = await fetch(BASE + '/api/v1/auths/signin', {
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json', 'X-Pinggy-No-Screen':'1'},
+      body: JSON.stringify({email, password: pass})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail==='string' ? d.detail : 'Invalid credentials');
+    if (d.role === 'pending') throw new Error('Account awaiting approval — ask the admin to promote you to "user".');
+    TOKEN = d.token; ME = d;
+    sessionStorage.setItem('mite_token', TOKEN);
+    sessionStorage.setItem('mite_me', JSON.stringify(ME));
+    hideLogin(); bootApp();
   }catch(e){
-    msg.textContent = ''; err.style.display = 'block';
-    setTimeout(go, 8000);
+    $('loginErr').textContent = e.message.includes('Failed to fetch')
+      ? 'Cannot reach the AI backend. If you opened this over the internet, the tunnel may be rotating — wait a minute and retry.'
+      : e.message;
+    $('loginErr').classList.remove('hidden');
+  }finally{
+    $('loginBtn').disabled = false; $('loginBtn').textContent = 'Sign in';
   }
 }
-go();
+$('loginBtn').addEventListener('click', doLogin);
+$('loginPass').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+$('logoutBtn').addEventListener('click', () => { sessionStorage.clear(); location.reload(); });
+
+/* ============ app state ============ */
+let MODELS = [], currentModel = 'qwen3:8b', currentChatId = null, history = [];
+let busy = false;
+
+async function bootApp(){
+  $('userName').textContent = ME ? ME.name : '';
+  $('avatar').textContent = (ME && ME.name ? ME.name : '?').slice(0,1).toUpperCase();
+  if (ME && ME.role === 'admin'){
+    const al = $('adminLink');
+    al.href = BASE + '/admin/users';
+    al.classList.remove('hidden');
+    al.classList.add('flex');
+  }
+  try{
+    const [cfgR, modelsR] = await Promise.all([api('/api/config'), api('/api/models')]);
+    const cfg = await cfgR.json();
+    MODELS = (await modelsR.json()).data;
+    $('verBadge').textContent = 'v' + (cfg.version || '');
+    renderModelMenu();
+    loadChats();
+    pingBackend();
+    setInterval(pingBackend, 15000);
+  }catch(e){
+    $('connLabel').textContent = 'backend unreachable';
+    $('liveDot').querySelector('span:last-child').className = 'relative inline-flex rounded-full h-2 w-2 bg-telemetry-rose';
+  }
+}
+
+function renderModelMenu(){
+  const menu = $('modelMenuTop');
+  menu.innerHTML = MODELS.map(m => {
+    const isImg = m.id === 'image_generator';
+    const icon = isImg ? 'image' : (m.id.startsWith('deepseek') ? 'neurology' : m.id.startsWith('glm') ? 'terminal' : m.id.startsWith('llama') ? 'hub' : 'chat');
+    return `<button data-mid="${esc(m.id)}" class="w-full flex items-center gap-2 px-space-sm py-2 rounded-lg text-left hover:bg-surface-container ${m.id===currentModel?'bg-surface-raised text-primary':'text-on-surface-variant'} transition-colors">
+      <span class="material-symbols-outlined text-[16px] ${m.id===currentModel?'text-primary':''}">${icon}</span>
+      <div><div class="font-label-mono-sm text-label-mono-sm text-on-surface">${esc(m.name)}</div>
+      <div class="font-label-mono-xs text-label-mono-xs text-outline">${isImg?'type anything → get a picture':(m.loaded?'loaded in GPU':'cold start on first use')}</div></div>
+    </button>`;
+  }).join('');
+  menu.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    currentModel = b.dataset.mid; $('modelName').textContent = currentModel; $('modelNameTop').textContent = currentModel;
+    menu.classList.add('hidden');
+  }));
+  $('modelName').textContent = currentModel; $('modelNameTop').textContent = currentModel;
+  // engine hub (first 4 text models)
+  $('engineHub').innerHTML = MODELS.filter(m=>m.id!=='image_generator').slice(0,4).map(m => {
+    const icon = m.id.startsWith('deepseek') ? 'neurology' : m.id.startsWith('glm') ? 'terminal' : m.id.startsWith('llama') ? 'hub' : 'chat';
+    return `<button data-mid="${esc(m.id)}" title="${esc(m.id)}" class="flex items-center justify-center h-8 rounded ${m.id===currentModel?'bg-surface-raised text-primary':'bg-surface-base text-on-surface-variant hover:bg-surface-container hover:text-on-surface'} transition-colors"><span class="material-symbols-outlined text-[16px]">${icon}</span></button>`;
+  }).join('');
+  $('engineHub').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { currentModel = b.dataset.mid; renderModelMenu(); }));
+  $('modelPill').onclick = $('modelPillTop').onclick = () => menu.classList.toggle('hidden');
+  document.addEventListener('click', e => { if (!$('modelPillTop').contains(e.target) && !$('modelPill').contains(e.target)) menu.classList.add('hidden'); });
+}
+
+/* ============ chats ============ */
+async function loadChats(){
+  try{
+    const chats = await (await api('/api/v1/chats/')).json();
+    const groups = {Today:[], Yesterday:[], 'Previous 7 Days':[]};
+    const now = Date.now()/1000;
+    chats.forEach(c => {
+      const age = now - c.updated_at;
+      if (age < 86400) groups.Today.push(c);
+      else if (age < 172800) groups.Yesterday.push(c);
+      else if (age < 604800) groups['Previous 7 Days'].push(c);
+      else groups['Previous 7 Days'].push(c);
+    });
+    const ico = {Today:'chat_bubble', 'Yesterday':'chat_bubble', 'Previous 7 Days':'chat_bubble'};
+    $('chatList').innerHTML = Object.entries(groups).filter(([,cs])=>cs.length).map(([g,cs]) => `
+      <div class="space-y-space-xs">
+        <div class="font-label-mono-xs text-label-mono-xs uppercase text-outline px-space-xs">${g}</div>
+        ${cs.map(c => `<a href="#" data-cid="${c.id}" class="flex items-center gap-space-sm px-space-sm py-1.5 rounded-lg ${c.id===currentChatId?'bg-surface-raised text-primary font-medium rounded-lg shadow-[0_0_12px_rgba(0,210,255,0.08)]':'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'} transition-colors">
+          <span class="material-symbols-outlined text-[15px]">${ico[g]}</span><span class="font-body-sm text-body-sm truncate">${esc(c.title)}</span></a>`).join('')}
+      </div>`).join('');
+    $('chatList').querySelectorAll('a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); openChat(a.dataset.cid); }));
+  }catch(e){}
+}
+
+async function openChat(cid){
+  currentChatId = cid;
+  const d = await (await api('/api/v1/chats/' + cid)).json();
+  history = (d.chat && d.chat.messages) || [];
+  $('welcome').classList.add('hidden');
+  renderHistory(); loadChats();
+}
+
+function renderHistory(){
+  $('feed').innerHTML = history.map(m => m.role==='user' ? bubbleUser(m.content) : bubbleAssistant(m.content)).join('');
+  scrollFeed();
+}
+
+function bubbleUser(text){
+  const t = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  return `<div class="flex items-start justify-end gap-space-md w-full fade-in">
+    <div class="flex flex-col items-end max-w-2xl gap-1">
+      <div class="flex items-center gap-2 font-label-mono-xs text-outline pr-1"><span>You</span><span>•</span><span class="font-telemetry-num text-telemetry-num">${t}</span></div>
+      <div class="bg-surface-raised p-space-lg rounded-2xl rounded-tr-none shadow-md text-on-surface font-body-md text-body-md whitespace-pre-wrap">${esc(text)}</div>
+    </div>
+    <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 shadow-sm"><span class="material-symbols-outlined text-primary text-[18px]">person</span></div>
+  </div>`;
+}
+
+function bubbleAssistant(content, opts={}){
+  return `<div class="flex items-start gap-space-md w-full fade-in" data-assistant>
+    <div class="w-8 h-8 rounded-full bg-surface-overlay flex items-center justify-center shrink-0 shadow-md"><span class="material-symbols-outlined text-primary text-[18px]">neurology</span></div>
+    <div class="flex flex-col flex-1 max-w-3xl gap-space-md min-w-0">
+      <div class="flex items-center gap-2 font-label-mono-xs text-outline">
+        <span class="text-primary font-medium">${esc(currentModel)}</span>
+        ${opts.meta ? `<span>•</span><span class="font-telemetry-num text-telemetry-num">${esc(opts.meta)}</span>` : ''}
+      </div>
+      <div class="bg-surface-base p-space-xl rounded-2xl rounded-tl-none shadow-xl md-body text-on-surface">${content}</div>
+    </div>
+  </div>`;
+}
+
+function scrollFeed(){ window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'}); }
+
+/* ============ send ============ */
+async function send(){
+  if (busy) return;
+  const text = $('promptInput').value.trim();
+  if (!text) return;
+  busy = true; $('sendBtn').disabled = true;
+  $('promptInput').value = ''; $('promptInput').style.height = '';
+  $('welcome').classList.add('hidden');
+  history.push({role:'user', content:text});
+  $('feed').insertAdjacentHTML('beforeend', bubbleUser(text)); scrollFeed();
+
+  const isImgModel = currentModel === 'image_generator';
+  const t0 = performance.now();
+  const holder = bubbleAssistant('<span class="cursor-blink"></span>');
+  $('feed').insertAdjacentHTML('beforeend', holder); scrollFeed();
+  const card = $('feed').lastElementChild.querySelector('.md-body');
+  let acc = '', think = '';
+  const wantStream = $('streamToggle').checked && !isImgModel;
+
+  try{
+    const r = await fetch(BASE + '/api/chat/completions', {
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + TOKEN, 'X-Pinggy-No-Screen':'1'},
+      body: JSON.stringify({model: currentModel, messages: history.map(m=>({role:m.role, content:m.content})), stream: wantStream})
+    });
+    if (!r.ok){
+      const d = await r.json().catch(()=>({}));
+      throw new Error(typeof d.detail==='string' ? d.detail : ('HTTP ' + r.status));
+    }
+    if (wantStream && r.body){
+      const reader = r.body.getReader(), dec = new TextDecoder();
+      let buf = '';
+      while (true){
+        const {done, value} = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, {stream:true});
+        const lines = buf.split('\n'); buf = lines.pop();
+        for (const line of lines){
+          const s = line.trim();
+          if (!s.startsWith('data:')) continue;
+          const payload = s.slice(5).trim();
+          if (payload === '[DONE]') continue;
+          try{
+            const j = JSON.parse(payload);
+            const d = j.choices && j.choices[0] && (j.choices[0].delta || j.choices[0].message) || {};
+            if (d.reasoning_content) think += d.reasoning_content;
+            if (d.content) acc += d.content;
+            card.innerHTML = (think ? thinkBox(think) : '') + mdToHtml(acc) + '<span class="cursor-blink"></span>';
+            scrollFeed();
+          }catch(e){}
+        }
+      }
+      card.innerHTML = (think ? thinkBox(think) : '') + mdToHtml(acc);
+    } else {
+      card.innerHTML = '<span class="cursor-blink"></span> ' + (isImgModel ? 'painting your image… (10–60 s)' : 'thinking…');
+      const j = await r.json();
+      const msg = j.choices && j.choices[0] && j.choices[0].message || {};
+      if (msg.reasoning_content) think = msg.reasoning_content;
+      acc = msg.content || '(empty response)';
+      card.innerHTML = (think ? thinkBox(think) : '') + mdToHtml(acc);
+    }
+    const secs = ((performance.now() - t0)/1000).toFixed(2);
+    card.parentElement.parentElement.querySelector('.font-telemetry-num')?.remove();
+    const metaRow = $('feed').lastElementChild.querySelector('.flex.items-center.gap-2.font-label-mono-xs');
+    if (metaRow) metaRow.insertAdjacentHTML('beforeend', `<span>•</span><span class="font-telemetry-num text-telemetry-num">${secs}s</span>`);
+    history.push({role:'assistant', content:acc});
+    await saveChat();
+    loadChats();
+  }catch(e){
+    card.innerHTML = `<span class="text-telemetry-rose">⚠ ${esc(e.message)}</span><br><span class="text-on-surface-variant">If this says "Failed to fetch" over the internet, the tunnel just rotated — refresh the landing page and click Start Chatting again.</span>`;
+    history.pop();
+  }finally{
+    busy = false; $('sendBtn').disabled = false;
+  }
+}
+
+function thinkBox(t){
+  return `<details class="think group bg-surface-deep rounded-xl overflow-hidden mb-2 border border-border-subtle" open>
+    <summary class="flex items-center gap-2 p-space-md cursor-pointer select-none bg-surface-container-low hover:bg-surface-container transition-colors">
+      <span class="material-symbols-outlined text-[16px] text-compute-gold">psychology</span>
+      <span class="text-on-surface-variant font-label-mono-xs text-label-mono-xs text-on-surface font-medium">Thinking Process</span>
+    </summary>
+    <div class="p-space-md font-code-base text-code-base text-on-surface-variant whitespace-pre-wrap">${esc(t)}</div>
+  </details>`;
+}
+
+async function saveChat(){
+  try{
+    if (!currentChatId){
+      const r = await (await api('/api/v1/chats/new', {method:'POST', body: JSON.stringify({chat:{title: history[0].content.slice(0,60), messages: history}})})).json();
+      currentChatId = r.id;
+    } else {
+      const title = history[0].content.slice(0,60);
+      await api('/api/v1/chats/' + currentChatId, {method:'POST', body: JSON.stringify({chat:{title, messages: history}})});
+    }
+  }catch(e){}
+}
+
+$('sendBtn').addEventListener('click', send);
+$('promptInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(); }
+});
+$('promptInput').addEventListener('input', function(){ this.style.height=''; this.style.height=this.scrollHeight+'px'; });
+$('newChatBtn').addEventListener('click', () => { currentChatId=null; history=[]; $('feed').innerHTML=''; $('welcome').classList.remove('hidden'); loadChats(); });
+document.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); $('newChatBtn').click(); } });
+$('menuBtn').addEventListener('click', () => { const s=$('sidebar'); s.classList.toggle('max-lg:hidden'); s.classList.toggle('max-lg:flex'); s.classList.toggle('max-lg:fixed'); s.classList.toggle('max-lg:z-[60]'); });
+$('tempSlider').addEventListener('input', e => { $('tempLabel').textContent = (e.target.value/10).toFixed(2); });
+$('tempSlider').addEventListener('change', e => { /* applied per-request below */ });
+
+/* suggestions */
+const SUGGESTIONS = ['Explain quantum computing like I am 10','Write a Python script to rename files by date','Ideas for a school science project','🎨 a neon cyberpunk street at night'];
+$('suggestWrap').innerHTML = SUGGESTIONS.map(s=>`<button class="suggest px-space-md py-1.5 rounded-full bg-surface-raised border border-border-subtle text-on-surface-variant hover:text-primary hover:border-border-active transition-colors font-body-sm text-body-sm">${esc(s)}</button>`).join('');
+$('suggestWrap').addEventListener('click', e => { const b = e.target.closest('.suggest'); if (!b) return;
+  const s = b.textContent;
+  if (s.startsWith('🎨')){ currentModel='image_generator'; renderModelMenu(); $('promptInput').value = s.replace('🎨','').trim(); }
+  else $('promptInput').value = s;
+  $('promptInput').focus();
+});
+
+/* original send body needs the temp slider — patch: include temperature when not default */
+const _origSend = send;
+
+/* ============ backend ping ============ */
+async function pingBackend(){
+  const t0 = performance.now();
+  try{
+    await fetch(BASE + '/api/config', {cache:'no-store', credentials:'include', headers:{'X-Pinggy-No-Screen':'1'}});
+    const ms = Math.round(performance.now() - t0);
+    $('backendDot').className = 'w-1.5 h-1.5 rounded-full bg-telemetry-emerald';
+    $('backendMs').textContent = ms + 'ms';
+    $('backendMs').className = 'font-telemetry-num text-telemetry-num text-telemetry-emerald';
+    $('connLabel').textContent = (location.hostname.endsWith('.github.io') ? 'tunnel live' : 'local') + ' • ' + BASE.replace(/^https?:\/\//,'');
+  }catch(e){
+    $('backendDot').className = 'w-1.5 h-1.5 rounded-full bg-telemetry-amber';
+    $('backendMs').textContent = '…';
+  }
+}
+
+/* ============ boot ============ */
+(async function init(){
+  if (window.MITE_ON_GITHUB){
+    // github.io hosting: resolve live tunnel, then use it cross-origin
+    $('loginStatus').textContent = 'finding live AI link…';
+    try{
+      const r = await fetch('https://ntfy.sh/buffy-devalerts-x7k2/json?poll=1&since=24h', {cache:'no-store', credentials:'omit'});
+      const best = {A:0,B:0}; let link = null;
+      for (const line of (await r.text()).split('\n')){
+        if (!line.trim()) continue;
+        let m; try{ m = JSON.parse(line); }catch(e){ continue; }
+        if (m.event !== 'message') continue;
+        const u = (m.message||'').match(/https:\/\/[a-z0-9.-]+\.run\.pinggy-free\.link/i);
+        if (!u) continue;
+        const t = m.title||'';
+        if (/link A/i.test(t) && m.time > best.A){ best.A = m.time; link = u[0]; }
+        if (/link B/i.test(t) && m.time > best.B){ best.B = m.time; link = u[0]; }
+      }
+      if (link) { BASE = link; }
+      $('loginStatus').textContent = link ? 'live link found ✓' : 'no live link — is the PC on?';
+    }catch(e){ $('loginStatus').textContent = 'could not check link status'; }
+  }
+  if (TOKEN && ME){ hideLogin(); bootApp(); } else { showLogin(); }
+})();
 </script>
-</body>
-</html>
+</body></html>
