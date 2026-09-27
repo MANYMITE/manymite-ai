@@ -80,6 +80,8 @@ window.MITE_ON_GITHUB = false;
     </div>
   </div>
   <div class="p-space-md bg-surface-container-lowest flex flex-col gap-space-xs">
+    <a id="adminLink" href="#" target="_blank" rel="noopener" class="hidden flex items-center gap-space-sm px-space-sm py-1.5 rounded text-compute-gold hover:bg-surface-container transition-colors font-label-mono-sm text-label-mono-sm uppercase tracking-wider">
+      <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>Admin Panel</a>
     <div class="flex items-center justify-between px-space-sm text-on-surface-variant font-label-mono-xs text-label-mono-xs">
       <div class="flex items-center gap-1.5"><span id="backendDot" class="w-1.5 h-1.5 rounded-full bg-telemetry-amber"></span><span>Backend</span></div>
       <span id="backendMs" class="font-telemetry-num text-telemetry-num">—</span>
@@ -248,6 +250,12 @@ let busy = false;
 async function bootApp(){
   $('userName').textContent = ME ? ME.name : '';
   $('avatar').textContent = (ME && ME.name ? ME.name : '?').slice(0,1).toUpperCase();
+  if (ME && ME.role === 'admin'){
+    const al = $('adminLink');
+    al.href = BASE + '/admin/users';
+    al.classList.remove('hidden');
+    al.classList.add('flex');
+  }
   try{
     const [cfgR, modelsR] = await Promise.all([api('/api/config'), api('/api/models')]);
     const cfg = await cfgR.json();
