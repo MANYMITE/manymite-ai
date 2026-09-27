@@ -10,7 +10,7 @@ docker cp "$(dirname "$0")/make_logos.py" open-webui:/tmp/make_logos.py
 docker exec open-webui python3 /tmp/make_logos.py
 
 echo "=== 2. Patch WEBUI_NAME (kill the '(Open WebUI)' suffix rule) ==="
-docker exec open-webui python3 - <<'PYEOF'
+docker exec -i open-webui python3 - <<'PYEOF'
 p = "/app/backend/open_webui/env.py"
 src = open(p).read()
 src = src.replace(
@@ -23,7 +23,7 @@ print("env.py patched")
 PYEOF
 
 echo "=== 3. Patch built index.html title/meta ==="
-docker exec open-webui python3 - <<'PYEOF'
+docker exec -i open-webui python3 - <<'PYEOF'
 import re
 p = "/app/build/index.html"
 src = open(p).read()
