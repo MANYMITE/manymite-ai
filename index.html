@@ -78,13 +78,13 @@
     <h1>Your own private AI.<br><span class="grad">Free forever.</span></h1>
     <p class="sub">A ChatGPT-style assistant that runs on MANYMITE's own PC — nothing is sent to big-tech servers.
       Chat, code, solve math, and generate AI images.</p>
-    <a class="cta" id="chatBtn" href="#" target="_blank" rel="noopener">
-      Start Chatting <span class="arr">→</span>
+    <a id="consoleBtn" href="#" target="_blank" rel="noopener" class="cta">
+      ⚡ Open the AI Console <span class="arr">→</span>
     </a>
     <div style="margin-top:14px">
-      <a id="consoleBtn" href="#" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:600;font-size:.95rem;padding:11px 24px;border-radius:12px;color:#9fb4ff;border:1px solid #232d4a;background:#121829;transition:all .15s"
+      <a id="chatBtn" href="#" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:600;font-size:.95rem;padding:11px 24px;border-radius:12px;color:#9fb4ff;border:1px solid #232d4a;background:#121829;transition:all .15s"
          onmouseover="this.style.borderColor='#00d2ff4d';this.style.color='#a5e7ff'" onmouseout="this.style.borderColor='#232d4a';this.style.color='#9fb4ff'">
-        ⚡ Open Console — new cockpit UI (beta)
+        Classic chat →
       </a>
     </div>
     <div class="offline-note" id="offlineNote">The AI is offline right now — ask MANYMITE for the fresh link (it lands on his phone automatically).</div>
@@ -100,7 +100,7 @@
   <section class="info" id="how">
     <h2>For friends — how to use it</h2>
     <ol class="how">
-      <li>Click <b>Start Chatting</b> above (opens the live chat in a new tab).</li>
+      <li>Click <b>Open the AI Console</b> above (the new cockpit chat — or <b>Classic chat</b> for the original interface).</li>
       <li>Log in with the account MANYMITE created for you.</li>
       <li>Pick a model at the top-left of the chat box and type away.</li>
       <li>Want a picture? Pick <code>🎨 Image Generator</code> and just describe it — or type <code>/image</code> + your idea in any chat.</li>
@@ -133,6 +133,10 @@ function applyLink(link){
   if (cbtn) cbtn.href = link.replace(/\/+$/,'') + '/chat.html';
   try{ localStorage.setItem('manymite_ai_link', link); }catch(e){}
   setOnline();
+}
+// deep link: /?console jumps straight into the console UI
+if (new URLSearchParams(location.search).has('console') && localStorage.getItem('manymite_ai_link')){
+  location.replace(localStorage.getItem('manymite_ai_link').replace(/\/+$/,'') + '/chat.html');
 }
 
 async function findLiveLink(){
