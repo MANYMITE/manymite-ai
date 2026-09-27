@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sathvik AI — Private AI, Powered by Home</title>
-<meta name="description" content="Sathvik AI — a private, free ChatGPT-style assistant running on Sathvik's own PC. Chat, code, math and AI image generation.">
-<meta property="og:title" content="Sathvik AI">
+<title>MANYMITE AI — Private AI, Powered by Home</title>
+<meta name="description" content="MANYMITE AI — a private, free ChatGPT-style assistant running on MANYMITE's own PC. Chat, code, math and AI image generation.">
+<meta property="og:title" content="MANYMITE AI">
 <meta property="og:description" content="Private AI chat + image generation — free, fast, and hosted at home.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <style>
@@ -69,19 +69,19 @@
 <div class="wrap">
 
   <header>
-    <div class="logo"><div class="bolt">⚡</div> Sathvik&nbsp;AI</div>
+    <div class="logo"><div class="bolt">⚡</div> MANYMITE&nbsp;AI</div>
     <nav><a href="#features">Features</a><a href="#how">How it works</a></nav>
   </header>
 
   <div class="hero">
     <div class="pill"><span class="dot" id="statusDot"></span><span id="statusText">Checking if the AI is online…</span></div>
     <h1>Your own private AI.<br><span class="grad">Free forever.</span></h1>
-    <p class="sub">A ChatGPT-style assistant that runs on Sathvik's own PC — nothing is sent to big-tech servers.
+    <p class="sub">A ChatGPT-style assistant that runs on MANYMITE's own PC — nothing is sent to big-tech servers.
       Chat, code, solve math, and generate AI images.</p>
     <a class="cta" id="chatBtn" href="#" target="_blank" rel="noopener">
       Start Chatting <span class="arr">→</span>
     </a>
-    <div class="offline-note" id="offlineNote">The AI is offline right now — ask Sathvik for the fresh link (it lands on his phone automatically).</div>
+    <div class="offline-note" id="offlineNote">The AI is offline right now — ask MANYMITE for the fresh link (it lands on his phone automatically).</div>
   </div>
 
   <div class="grid" id="features">
@@ -95,7 +95,7 @@
     <h2>For friends — how to use it</h2>
     <ol class="how">
       <li>Click <b>Start Chatting</b> above (opens the live chat in a new tab).</li>
-      <li>Log in with the account Sathvik created for you.</li>
+      <li>Log in with the account MANYMITE created for you.</li>
       <li>Pick a model at the top-left of the chat box and type away.</li>
       <li>Want a picture? Pick <code>🎨 Image Generator</code> and just describe it — or type <code>/image</code> + your idea in any chat.</li>
     </ol>
@@ -108,7 +108,7 @@
     </div>
   </section>
 
-  <footer>Made with ❤️ at home · Sathvik AI © 2026 · Powered by Ollama + Open WebUI + Flux</footer>
+  <footer>Made with ❤️ at home · MANYMITE AI © 2026 · Powered by Ollama + Open WebUI + Flux</footer>
 </div>
 
 <script>
@@ -123,7 +123,7 @@ function setOffline(){ dot.className='dot down'; statusText.textContent='AI is o
 
 function applyLink(link){
   btn.href = link;
-  try{ localStorage.setItem('sathvik_ai_link', link); }catch(e){}
+  try{ localStorage.setItem('manymite_ai_link', link); }catch(e){}
   setOnline();
 }
 
@@ -146,7 +146,7 @@ async function findLiveLink(){
     }
   }catch(e){ /* offline or blocked */ }
 
-  if(!link){ try{ link = localStorage.getItem('sathvik_ai_link'); }catch(e){} }
+  if(!link){ try{ link = localStorage.getItem('manymite_ai_link'); }catch(e){} }
 
   if(link){ applyLink(link); }
   else { btn.removeAttribute('href'); setOffline(); }

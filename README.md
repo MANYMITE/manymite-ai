@@ -1,16 +1,16 @@
-# ⚡ Sathvik AI
+# ⚡ MANYMITE AI
 
 **Private AI chat + AI image generation — free, hosted at home.**
 
 <br>
 
-# 🔗 **OPEN THE AI → https://manymite.github.io/sathvik-ai/**
+# 🔗 **OPEN THE AI → https://manymite.github.io/manymite-ai/**
 
 <br>
 
 Click **Start Chatting** on that page and you're in — the site always finds the
 live chat automatically, even when the address rotates. Log in with the account
-Sathvik made for you.
+MANYMITE made for you.
 
 ## What's inside the AI
 
@@ -24,7 +24,7 @@ Sathvik made for you.
 
 ## How it works
 
-- The AI runs on Sathvik's own PC (private — nothing goes to big-tech clouds)
+- The AI runs on MANYMITE's own PC (private — nothing goes to big-tech clouds)
 - The landing page auto-detects the current public chat link from a live
   notification feed and re-checks every 60 s, so the **Start Chatting** button
   never goes dead
