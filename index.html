@@ -87,6 +87,12 @@
         Classic chat →
       </a>
     </div>
+    <div style="margin-top:10px">
+      <a id="adminBtn" href="#" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;text-decoration:none;font-weight:500;font-size:.85rem;padding:8px 18px;border-radius:10px;color:#859399;border:1px solid #232d4a;background:transparent;transition:all .15s"
+         onmouseover="this.style.borderColor='#D4AF3766';this.style.color='#D4AF37'" onmouseout="this.style.borderColor='#232d4a';this.style.color='#859399'">
+        🔒 Admin Panel — manage users &amp; models
+      </a>
+    </div>
     <div class="offline-note" id="offlineNote">The AI is offline right now — ask MANYMITE for the fresh link (it lands on his phone automatically).</div>
   </div>
 
@@ -131,13 +137,19 @@ function applyLink(link){
   btn.href = link;
   const cbtn = document.getElementById('consoleBtn');
   if (cbtn) cbtn.href = link.replace(/\/+$/,'') + '/chat.html';
+  const abtn = document.getElementById('adminBtn');
+  if (abtn) abtn.href = link.replace(/\/+$/,'') + '/admin/users';
   try{ localStorage.setItem('manymite_ai_link', link); }catch(e){}
   setOnline();
 }
-// deep link: /?console jumps straight into the console UI
-if (new URLSearchParams(location.search).has('console') && localStorage.getItem('manymite_ai_link')){
-  location.replace(localStorage.getItem('manymite_ai_link').replace(/\/+$/,'') + '/chat.html');
-}
+// deep links: /?console jumps into the console, /?admin into the admin panel
+(function(){
+  const p = new URLSearchParams(location.search);
+  const saved = localStorage.getItem('manymite_ai_link');
+  if (!saved) return;
+  if (p.has('console')) location.replace(saved.replace(/\/+$/,'') + '/chat.html');
+  if (p.has('admin'))   location.replace(saved.replace(/\/+$/,'') + '/admin/users');
+})();
 
 async function findLiveLink(){
   let link = null;
